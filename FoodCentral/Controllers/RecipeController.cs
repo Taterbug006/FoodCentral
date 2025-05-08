@@ -19,21 +19,18 @@ namespace FoodCentral.Controllers
             _userManager = userManager;
         }
 
-        // GET: Recipe
-        [AllowAnonymous] // Allow all users to view recipes
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var recipes = await _context.Recipes.ToListAsync();
             return View(recipes);
         }
 
-        // GET: Recipe/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Recipe/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Recipe recipe)
@@ -45,7 +42,6 @@ namespace FoodCentral.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Recipe/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -64,7 +60,6 @@ namespace FoodCentral.Controllers
             return View(recipe);
         }
 
-        // POST: Recipe/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Recipe recipe)
@@ -82,13 +77,12 @@ namespace FoodCentral.Controllers
                 return Forbid();
             }
 
-            recipe.UserId = dbRecipe.UserId; // Preserve ownership
+            recipe.UserId = dbRecipe.UserId;
             _context.Update(recipe);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Recipe/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -107,13 +101,15 @@ namespace FoodCentral.Controllers
             return View(recipe);
         }
 
-        // POST: Recipe/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var recipe = await _context.Recipes.FindAsync(id);
-            if (recipe == null) return NotFound();
+            if (recipe == null)
+            {
+                return NotFound();
+            }
 
             var user = await _userManager.GetUserAsync(User);
             bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
