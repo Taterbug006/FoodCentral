@@ -1,0 +1,51 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using FoodCentral.Models
+@inject UserManager<IdentityUser> UserManager
+@model IEnumerable<Recipe>
+
+@{
+    ViewData["Title"] = "Recipes";
+}
+
+<h2>Recipes</h2>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <p>
+        <a asp-action="Create" class="btn btn-success">Add New Recipe</a>
+    </p>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Meal Type</th>
+            <th>Vegetarian</th>
+            <th>Instructions</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var recipe in Model)
+        {
+            var currentUserId = UserManager.GetUserId(User);
+            bool isOwner = recipe.UserId == currentUserId;
+            bool isAdmin = User.IsInRole("Admin");
+
+            <tr>
+                <td>@recipe.Name</td>
+                <td>@recipe.MealType</td>
+                <td>@(recipe.IsVegetarian ? "Yes" : "No")</td>
+                <td>@recipe.Instructions</td>
+                <td>
+                    @if (isOwner || isAdmin)
+                    {
+                        <a asp-action="Edit" asp-route-id="@recipe.Id" class="btn btn-sm btn-primary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@recipe.Id" class="btn btn-sm btn-danger">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
